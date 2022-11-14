@@ -61,6 +61,19 @@ m.fit(x_train_scaled, y_train_scaled
       , validation_data=(x_val_scaled, y_val_scaled)
       )
 
+mlp = MLPClassifier(
+                    hidden_layer_sizes=(3417,),        # tuple로 전달할 수 있으며, tuple의 i번째 element가 i번째 hidden layer의 크기
+                    activation='relu',              # hidden layer에 사용할 activation function의 종류 
+                    solver='sgd',                   # optimizer의 종류 lbfgs, sgd, adam
+                    alpha=0.001,
+                    batch_size='auto',              # mini-batch의 크기를 설정한다
+                    learning_rate='constant',       # learning rate scheduler의 종류 설정
+                    learning_rate_init=0.001,        
+                    max_iter=100,                   # training iteration을 수행할 횟수(epoch)
+                    )
+mlp.fit(x_train_scaled, y_train)
+mlp.score(x_val_scaled, y_val)
+
 scores_train = m.evaluate(x_test,y_test)
 scores_val = m.evaluate(x_val_scaled,y_val_scaled)
 print("%s: %.2f%%,  val_losss: %.2f%%" %(m.metrics_names[0], scores_train[1]*100, scores_val[1]*100))
