@@ -42,18 +42,31 @@ x_val_scaled = scaler.transform(x_val)      # 데이터를 표준화 전처리
 y_val_scaled = y_val.values
 
 
- 
-m = Sequential()
-m.add(Input(shape=(1)))
-m.add(Dense(4, activation='relu'))
-m.add(Dense(8, activation = 'relu'))
-m.add(Dense(16, activation = 'relu'))
-m.add(Dense(8, activation = 'relu'))
-m.add(Dense(1, activation = 'sigmoid'))
+from keras.callbacks import learning_rate_schedule
+model = Sequential()
+model.add(Dense(32, input_dim=10, activation='relu'))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(128, activation='relu'))
+model.add(Dense(256, activation='relu'))
+model.add(Dense(128, activation='relu'))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
 
-m.summary()
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-m.compile(loss='binary_crossentropy', optimizer = 'adam', metrics = ['acc'])
+checkpoint_cb = keras.callbacks.ModelCheckpoint('best-model_2.h5',   #ModelCheckpoint의 객체 #'best-model.h5'이름으로 저장
+                                                save_best_only=True) #모델이 "최상"으로 간주될 때만 저장
+#early stopping
+early_stopping_cb = keras.callbacks.EarlyStopping(patience=5, #EarlyStopping 객체
+                                                  restore_best_weights=True) #이상한 패턴이 2번 이상 지속되면 stop
+                                                  #restore_best_weights=True : 가장 낮은 검증 손실을 낸 모델을 파일에 저장
+history = model.fit(x_train_scaled, y_train
+                , epochs = 100
+                , batch_size = 64
+                , validation_data=(x_val_scaled, y_val_scaled)
+                , callbacks=[checkpoint_cb, early_stopping_cb] #best 모델 저장 및 early stopping
+                )
 
 m.fit(x_train_scaled, y_train_scaled
       , epochs = 100
