@@ -11,7 +11,7 @@ import pandas as pd
 from keras.models import Sequential
 from keras.layers import Dense, Input, Dropout, BatchNormalization, Flatten
 
-data = pd.read_csv('/content/ppg.csv', encoding='latin1')
+data = pd.read_csv('/project2/ppg.csv', encoding='latin1')
 data
 
 blood_sugar_rate_lr = data
