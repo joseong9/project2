@@ -11,7 +11,7 @@ import pandas as pd
 from keras.models import Sequential
 from keras.layers import Dense, Input, Dropout, BatchNormalization, Flatten
 
-data = pd.read_csv('/project2/ppg.csv', encoding='latin1')
+data = pd.read_csv('/project2/ppg.csv', encoding='latin1') 
 data
 
 blood_sugar_rate_lr = data
@@ -48,3 +48,5 @@ print(f"다항회귀 적용 : {r2_score(y_train_lr1, y_pred_train)}, {r2_score(y
 print(f"평균 제곱 오차 : {np.sqrt(mean_squared_error(y_train_lr1, y_pred_train))}, {np.sqrt(mean_squared_error(y_test_lr, y_pred_test))}")
 
 joblib.dump(lr, '/content/blood_sugar.pkl')
+
+#feature 늘리기 과제
