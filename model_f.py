@@ -154,6 +154,7 @@ evaluation_fp = cm[0][1]
 evaluation_fn = cm[1][0]
 evaluation_n = len(y_test)
 
+#모델 평가지표
 evaluation_acc = (evaluation_tp + evaluation_tn) / evaluation_n
 evaluation_rec = evaluation_tp / (evaluation_tp + evaluation_fn)
 evaluation_pre = evaluation_tp / (evaluation_tp + evaluation_fp)
