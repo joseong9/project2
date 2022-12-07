@@ -1,11 +1,12 @@
 import flask
+import json
 from flask import Flask, render_template, request, jsonify
 import numpy as np
 import tensorflow as tf
 from werkzeug.utils import secure_filename
 import re
 from urllib.parse import urlsplit, parse_qsl
-from sklearn.preprocessing import StandardScaler
+from flask_restful import Resource, Api, reqparse
 
 
 
@@ -15,6 +16,20 @@ indexRunPriority = {'type': 1000, 'modeltype': 4}
 
 
 app = Flask(__name__)
+api = Api(app)
+app.comfig['DEBUG'] = True
+
+@app.route('/node', methods=['POST'])
+def Node():
+   lists = request.args.get['file']
+   lists = list.split(',')
+   data = []
+   for list in lists:
+      data.append(list)
+
+   return jsonify({
+      'result' : data
+   })
 
 def on_json_loading_failed_return_dict(e):
    return {}
@@ -53,16 +68,24 @@ def predict():
    for _ in runQueue:
       if _[1] == "type":
          if parsed[_[1]] == "json":
-            pythonTypeResult1 = float(result)            
+            pythonTypeResult1 = float(result)
+            pythonTypeResult2 = float(result)            
             response = dict()
             if pythonTypeResult1 == 0.0:
                response.update({"당뇨입니까?" : "네"})
             elif pythonTypeResult1 == 1.0:
                response.update({"당뇨입니까?" : "아니요"})
+            if pythonTypeResult2 == result:
+               response.update({"혈당수치" : pythonTypeResult2})
             return jsonify(response)
          elif parsed[_[1]] == "xml":
             response = dict()
-            response.update({"혈당 수치": 'result'})
+            if pythonTypeResult1 == 0.0:
+               response.update({"당뇨입니까?" : "네"})
+            elif pythonTypeResult1 == 1.0:
+               response.update({"당뇨입니까?" : "아니요"})
+            if pythonTypeResult2 == result:
+               response.update({"혈당수치" : pythonTypeResult2})
       elif _[1] == "modeltype":
          if parsed[_[1]] == "cls":
             model = tf.keras.models.load_model("./best-model.h5")
@@ -72,6 +95,6 @@ def predict():
             result = model.predict(x)
 
 
-
+   
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5000', debug=False)
