@@ -19,20 +19,20 @@ app = Flask(__name__)
 api = Api(app)
 app.comfig['DEBUG'] = True
 
-@app.route('/node', methods=['POST'])
-def Node():
-   lists = request.args.get['file']
-   lists = list.split(',')
-   data = []
-   for list in lists:
-      data.append(list)
+# @app.route('/node', methods=['POST'])
+# def Node():
+#    lists = request.args.get['file']
+#    lists = list.split(',')
+#    data = []
+#    for list in lists:
+#       data.append(list)
 
-   return jsonify({
-      'result' : data
-   })
+#    return jsonify({
+#       'result' : data
+#    })
 
-def on_json_loading_failed_return_dict(e):
-   return {}
+# def on_json_loading_failed_return_dict(e):
+#    return {}
     
 @app.route('/node/flask/o/predict', methods=['POST','GET'])
 def predict():
