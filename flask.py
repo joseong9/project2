@@ -8,16 +8,14 @@ import re
 from urllib.parse import urlsplit, parse_qsl
 from flask_restful import Resource, Api, reqparse
 
-
-
 queryTypeRe = re.compile("^[jJ][sS][oO][nN]$")
 queryTypeRe = re.compile("^[xX][mM][lL]$")
 indexRunPriority = {'type': 1000, 'modeltype': 4}
 
 
 app = Flask(__name__)
-api = Api(app)
-app.comfig['DEBUG'] = True
+# api = Api(app)
+# app.config['DEBUG'] = True
 
 # @app.route('/node', methods=['POST'])
 # def Node():
@@ -31,8 +29,8 @@ app.comfig['DEBUG'] = True
 #       'result' : data
 #    })
 
-# def on_json_loading_failed_return_dict(e):
-#    return {}
+def on_json_loading_failed_return_dict(e):
+   return {}
     
 @app.route('/node/flask/o/predict', methods=['POST','GET'])
 def predict():
@@ -59,11 +57,10 @@ def predict():
    HF = json_data.get('HF')
    gender = json_data.get('gender')
    age = json_data.get('age')
+   print(HR)
    # x = json_data[HR, HRV, SDNN, RMSSD, PNN50, VLF, LF, HF, gender, age]
    x = [[HR, HRV, SDNN, RMSSD, PNN50, VLF, LF, HF, gender, age]]
    
-   
-   scaler = StandardScaler()
    
    for _ in runQueue:
       if _[1] == "type":
@@ -75,26 +72,26 @@ def predict():
                response.update({"당뇨입니까?" : "네"})
             elif pythonTypeResult1 == 1.0:
                response.update({"당뇨입니까?" : "아니요"})
-            if pythonTypeResult2 == result:
-               response.update({"혈당수치" : pythonTypeResult2})
+            # if pythonTypeResult2 == result:
+            #    response.update({"혈당수치" : pythonTypeResult2})
             return jsonify(response)
          elif parsed[_[1]] == "xml":
             response = dict()
             if pythonTypeResult1 == 0.0:
-               response.update({"당뇨입니까?" : "네"})
+               response.update({"당뇨입니까?" : "yes"})
             elif pythonTypeResult1 == 1.0:
                response.update({"당뇨입니까?" : "아니요"})
-            if pythonTypeResult2 == result:
-               response.update({"혈당수치" : pythonTypeResult2})
+            # if pythonTypeResult2 == result:
+            #    response.update({"혈당수치" : pythonTypeResult2})
       elif _[1] == "modeltype":
          if parsed[_[1]] == "cls":
-            model = tf.keras.models.load_model("./best-model.h5")
+            model = tf.keras.models.load_model("./best-model_sig.h5")
             result = model.predict(x)
          elif parsed[_[1]] == "reg":
-            model = tf.keras.models.load_model("./best-model_regress_9.h5")
+            model = tf.keras.models.load_model("./best-model_linear.h5")
             result = model.predict(x)
 
 
    
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000', debug=False)
+    app.run(host='0.0.0.0', port='5000', debug=True)
