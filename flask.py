@@ -6,28 +6,12 @@ import tensorflow as tf
 from werkzeug.utils import secure_filename
 import re
 from urllib.parse import urlsplit, parse_qsl
-from flask_restful import Resource, Api, reqparse
 
 queryTypeRe = re.compile("^[jJ][sS][oO][nN]$")
 queryTypeRe = re.compile("^[xX][mM][lL]$")
 indexRunPriority = {'type': 1000, 'modeltype': 4}
 
-
 app = Flask(__name__)
-# api = Api(app)
-# app.config['DEBUG'] = True
-
-# @app.route('/node', methods=['POST'])
-# def Node():
-#    lists = request.args.get['file']
-#    lists = list.split(',')
-#    data = []
-#    for list in lists:
-#       data.append(list)
-
-#    return jsonify({
-#       'result' : data
-#    })
 
 def on_json_loading_failed_return_dict(e):
    return {}
@@ -37,7 +21,6 @@ def predict():
    query_string = urlsplit(request.url).query
    parsed = dict(parse_qsl(query_string))
    json_data = request.get_json()
-   params = request.get_json()
    request.on_json_loading_failed = on_json_loading_failed_return_dict
    
    runQueue = list()
@@ -45,8 +28,6 @@ def predict():
       runQueue.append((indexRunPriority[_], _))
    runQueue = sorted(runQueue, key=lambda x : x[0])
    
-  
-   json = params
    HR = json_data.get('HR')
    HRV = json_data.get('HRV')
    SDNN = json_data.get('SDNN')
@@ -57,8 +38,6 @@ def predict():
    HF = json_data.get('HF')
    gender = json_data.get('gender')
    age = json_data.get('age')
-   print(HR)
-   # x = json_data[HR, HRV, SDNN, RMSSD, PNN50, VLF, LF, HF, gender, age]
    x = [[HR, HRV, SDNN, RMSSD, PNN50, VLF, LF, HF, gender, age]]
    
    
@@ -68,28 +47,25 @@ def predict():
             pythonTypeResult1 = float(result)
             pythonTypeResult2 = float(result)            
             response = dict()
-            if pythonTypeResult1 == 0.0:
-               response.update({"당뇨입니까?" : "네"})
-            elif pythonTypeResult1 == 1.0:
-               response.update({"당뇨입니까?" : "아니요"})
-            # if pythonTypeResult2 == result:
-            #    response.update({"혈당수치" : pythonTypeResult2})
+            if pythonTypeResult1 == 0:
+               response.update({"당뇨입니까?" : "당뇨입니다. 관리가 필요합니다!"})
+            elif pythonTypeResult1 == 1:
+               response.update({"당뇨입니까?" : "당뇨가 아닙니다."})
             return jsonify(response)
          elif parsed[_[1]] == "xml":
             response = dict()
             if pythonTypeResult1 == 0.0:
-               response.update({"당뇨입니까?" : "yes"})
+               response.update({"당뇨입니까?" : "네"})
             elif pythonTypeResult1 == 1.0:
                response.update({"당뇨입니까?" : "아니요"})
-            # if pythonTypeResult2 == result:
-            #    response.update({"혈당수치" : pythonTypeResult2})
+            return jsonify(response)
       elif _[1] == "modeltype":
          if parsed[_[1]] == "cls":
-            model = tf.keras.models.load_model("./best-model_sig.h5")
+            model = tf.keras.models.load_model("./best-model_sigmoid.h5")
             result = model.predict(x)
-         elif parsed[_[1]] == "reg":
+         elif parsed[_[1]] == "lin":
             model = tf.keras.models.load_model("./best-model_linear.h5")
-            result = model.predict(x)
+            result2 = model.predict(x)
 
 
    
